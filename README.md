@@ -1,10 +1,6 @@
 # Installation
 
-pip install fastapi
-
-pip install uvicorn
-
-pip install python-multipart
+pip install -r requirements.txt
 
 # Run
 
