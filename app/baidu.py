@@ -38,6 +38,6 @@ async def recognize_with_baidu(predict_plate, file, mask):
     print('识别结果不一致，百度识别结果:{}'.format(baidu_result))
     img = tf.image.decode_jpeg(file, channels=3)
     img = tf.image.resize(img, [416, 416])
-    raw_img = np.asarray(img)
-    plate_image = locate(raw_img, mask)
+    img = np.asarray(img)
+    plate_image = locate(img, mask)
     tf.io.write_file('./dataset/error/' + baidu_result + '/plate.jpeg', tf.image.encode_jpeg(plate_image))
