@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -96,6 +98,7 @@ def locate(img_src, img_mask):
 
 @app.get("/")
 def recognize():
+    begin = time.time()
     img = tf.io.read_file('./img.png')
     img = tf.image.decode_jpeg(img, channels=3)
     img = tf.image.resize(img, [416, 416])
@@ -115,4 +118,5 @@ def recognize():
     for cs in plate_chars:
         plate.append(index_to_char[np.argmax(cs)])
 
+    print('耗时: {}'.format(time.time() - begin))
     return {'plate': ''.join(plate)}
