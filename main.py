@@ -1,9 +1,11 @@
+import asyncio
 import time
 
 import numpy as np
 import tensorflow as tf
 from fastapi import FastAPI, File
 
+from app.baidu import recognize_with_baidu
 from app.common import locate, index_to_char, create_mask
 
 app = FastAPI()
@@ -12,7 +14,7 @@ recognition_model = tf.keras.models.load_model('models/plate.h5')
 
 
 @app.post("/")
-def recognize(file: bytes = File(...)):
+async def recognize(file: bytes = File(...)):
     begin = time.time()
     img = tf.image.decode_jpeg(file, channels=3)
     img = tf.image.resize(img, [416, 416])
@@ -29,5 +31,8 @@ def recognize(file: bytes = File(...)):
     plate_chars = recognition_model.predict(np.array([plate_image]))
     plate = [index_to_char[np.argmax(cs)] for cs in plate_chars]
 
+    predict_plate = ''.join(plate)
+    asyncio.create_task(recognize_with_baidu(predict_plate, file, mask))
+
     print('耗时: {}'.format(time.time() - begin))
-    return {'plate': ''.join(plate)}
+    return {'plate': predict_plate}

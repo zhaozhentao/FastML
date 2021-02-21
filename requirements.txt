@@ -1,4 +1,4 @@
-fastapi
+fastapi~=0.63.0
 uvicorn
 python-multipart
 uvloop
@@ -6,3 +6,6 @@ httptools
 opencv-python~=4.5.1.48
 numpy~=1.19.5
 tensorflow~=2.4.0
+
+requests~=2.25.1
+pydantic~=1.7.3
