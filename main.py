@@ -27,10 +27,7 @@ def recognize(file: bytes = File(...)):
 
     plate_image = locate(img, mask)
     plate_chars = recognition_model.predict(np.array([plate_image]))
-    plate = []
-    for cs in plate_chars:
-        plate.append(index_to_char[np.argmax(cs)])
+    plate = [index_to_char[np.argmax(cs)] for cs in plate_chars]
 
     print('耗时: {}'.format(time.time() - begin))
-
     return {'plate': ''.join(plate)}
