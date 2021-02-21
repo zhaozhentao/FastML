@@ -2,20 +2,19 @@ import time
 
 import numpy as np
 import tensorflow as tf
-from fastapi import FastAPI
+from fastapi import FastAPI, File
 
-from common import locate, index_to_char, create_mask
+from app.common import locate, index_to_char, create_mask
 
 app = FastAPI()
-detect_model = tf.keras.models.load_model('zc.h5')
-recognition_model = tf.keras.models.load_model('plate.h5')
+detect_model = tf.keras.models.load_model('models/zc.h5')
+recognition_model = tf.keras.models.load_model('models/plate.h5')
 
 
-@app.get("/")
-def recognize():
+@app.post("/")
+def recognize(file: bytes = File(...)):
     begin = time.time()
-    img = tf.io.read_file('./img.png')
-    img = tf.image.decode_jpeg(img, channels=3)
+    img = tf.image.decode_jpeg(file, channels=3)
     img = tf.image.resize(img, [416, 416])
     img = img / 255.0
 
