@@ -7,6 +7,7 @@ from fastapi import FastAPI, File
 
 from app.baidu import recognize_with_baidu
 from app.common import locate, index_to_char, create_mask
+from train_plate_model import train_model_by_system_call
 
 app = FastAPI()
 detect_model = tf.keras.models.load_model('models/zc.h5')
@@ -36,3 +37,8 @@ async def recognize(file: bytes = File(...)):
 
     print('耗时: {}'.format(time.time() - begin))
     return {'plate': predict_plate}
+
+
+@app.get('/')
+async def train():
+    asyncio.create_task(train_model_by_system_call())

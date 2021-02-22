@@ -1,5 +1,6 @@
 import base64
 import json
+import time
 
 import numpy as np
 import requests
@@ -40,4 +41,5 @@ async def recognize_with_baidu(predict_plate, file, mask):
     img = tf.image.resize(img, [416, 416])
     img = np.asarray(img)
     plate_image = locate(img, mask)
-    tf.io.write_file('./dataset/error/' + baidu_result + '/plate.jpeg', tf.image.encode_jpeg(plate_image))
+    file_path = './dataset/error/' + time.strftime("%Y_%m_%d_%H", time.localtime()) + baidu_result + '/plate.jpeg'
+    tf.io.write_file(file_path, tf.image.encode_jpeg(plate_image))

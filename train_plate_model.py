@@ -1,3 +1,4 @@
+import os
 import pathlib
 
 import tensorflow as tf
@@ -58,6 +59,10 @@ def train_model():
     model = tf.keras.models.Model(inputs=input_layer, outputs=output)
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     model.fit(ds, epochs=50)
+
+
+async def train_model_by_system_call():
+    os.system('python train_plate_model.py')
 
 
 if __name__ == "__main__":
