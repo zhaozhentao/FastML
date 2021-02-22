@@ -13,7 +13,7 @@ def load_and_process_image(image_path, l0, l1, l2, l3, l4, l5, l6, l7):
     return image, (l0, l1, l2, l3, l4, l5, l6, l7)
 
 
-async def train_model():
+def train_model():
     all_image_path = [str(p) for p in pathlib.Path('./dataset/labeled').glob('*/*')]
     batch_size = 64
     image_count = len(all_image_path)
@@ -59,4 +59,6 @@ async def train_model():
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     model.fit(ds, epochs=50)
 
-    del ds, label, image_path_ds, model
+
+if __name__ == "__main__":
+    train_model()
