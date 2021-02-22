@@ -60,7 +60,7 @@ def train_model():
     model = tf.keras.models.Model(inputs=input_layer, outputs=output)
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     model.fit(ds, epochs=50)
-    model.save('./models/zc.h5')
+    model.save('./models/plate.h5')
 
 
 async def train_model_by_system_call():
