@@ -16,6 +16,8 @@ def load_and_process_image(image_path, l0, l1, l2, l3, l4, l5, l6, l7):
 
 def train_model():
     all_image_path = [str(p) for p in pathlib.Path('./dataset/labeled').glob('*/*')]
+    [all_image_path.append(str(p)) for p in pathlib.Path('./dataset/error').glob('*/*')]
+
     batch_size = 64
     image_count = len(all_image_path)
     label = [[] for _ in range(8)]
