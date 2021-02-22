@@ -37,7 +37,6 @@ def train_model():
         tf.data.Dataset.zip(
             (image_path_ds, label[0], label[1], label[2], label[3], label[4], label[5], label[6], label[7]))
             .map(load_and_process_image)
-            .cache()
             .shuffle(buffer_size=image_count)
             .batch(batch_size)
             .prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
