@@ -14,7 +14,6 @@ def load_and_process_image(image_path, l0, l1, l2, l3, l4, l5, l6, l7):
 
 
 async def train_model():
-    # 读取数据集
     all_image_path = [str(p) for p in pathlib.Path('./dataset/labeled').glob('*/*')]
     batch_size = 64
     image_count = len(all_image_path)
@@ -32,7 +31,8 @@ async def train_model():
     label = [tf.data.Dataset.from_tensor_slices(l) for l in label]
 
     ds = (
-        tf.data.Dataset.zip((image_path_ds, label[0], label[1], label[2], label[3], label[4], label[5], label[6], label[7]))
+        tf.data.Dataset.zip(
+            (image_path_ds, label[0], label[1], label[2], label[3], label[4], label[5], label[6], label[7]))
             .map(load_and_process_image)
             .cache()
             .shuffle(buffer_size=image_count)
@@ -58,3 +58,5 @@ async def train_model():
     model = tf.keras.models.Model(inputs=input_layer, outputs=output)
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     model.fit(ds, epochs=50)
+
+    del ds, label, image_path_ds, model
