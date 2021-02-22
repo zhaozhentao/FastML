@@ -1,33 +1,58 @@
 import pathlib
 
-import numpy as np
 import tensorflow as tf
 
 from app.common import char_dict
 
 
+def load_and_process_image(image_path, l0, l1, l2, l3, l4, l5, l6, l7):
+    image = tf.io.read_file(image_path + '/plate.jpeg')
+    image = tf.image.decode_jpeg(image, channels=3)
+    image = tf.image.resize(image, [80, 240])
+    image /= 255.0
+    return image, (l0, l1, l2, l3, l4, l5, l6, l7)
+
+
 async def train_model():
+    # 读取数据集
     all_image_path = [str(p) for p in pathlib.Path('./dataset/labeled').glob('*/*')]
+    batch_size = 64
+    image_count = len(all_image_path)
+    label0, label1, label2, label3, label4, label5, label6, label7 = [], [], [], [], [], [], [], []
 
-    n = len(all_image_path)
-    x_train, y_train = [], []
-    for i in range(n):
-        path = all_image_path[i]
-        print('正在读取 {}'.format(all_image_path[i]))
-        img = tf.io.read_file(path + '/plate.jpeg')
-        img = tf.image.decode_jpeg(img, channels=3)
-        img = tf.image.resize(img, [80, 240])
-        img /= 255.0
+    for p in all_image_path:
+        print('正在读取 {}'.format(p))
+        plate = pathlib.Path(p).name
+        label0.append(char_dict[plate[0]])
+        label1.append(char_dict[plate[1]])
+        label2.append(char_dict[plate[2]])
+        label3.append(char_dict[plate[3]])
+        label4.append(char_dict[plate[4]])
+        label5.append(char_dict[plate[5]])
+        label6.append(char_dict[plate[6]])
+        if len(plate) == 7:
+            label7.append(65)
+        else:
+            label7.append(char_dict[plate[7]])
 
-        plate = pathlib.Path(path).name
-        label = [char_dict[name] for name in plate[0:8]]
-        if len(label) == 7:
-            label.append(65)
-        x_train.append(img)
-        y_train.append(label)
+    image_path_ds = tf.data.Dataset.from_tensor_slices(all_image_path)
+    label0 = tf.data.Dataset.from_tensor_slices(label0)
+    label1 = tf.data.Dataset.from_tensor_slices(label1)
+    label2 = tf.data.Dataset.from_tensor_slices(label2)
+    label3 = tf.data.Dataset.from_tensor_slices(label3)
+    label4 = tf.data.Dataset.from_tensor_slices(label4)
+    label5 = tf.data.Dataset.from_tensor_slices(label5)
+    label6 = tf.data.Dataset.from_tensor_slices(label6)
+    label7 = tf.data.Dataset.from_tensor_slices(label7)
 
-    x_train = np.array(x_train)
-    y_train = [np.array(y_train)[:, i] for i in range(8)]
+    ds = (
+        tf.data.Dataset.zip((image_path_ds, label0, label1, label2, label3, label4, label5, label6, label7))
+            .map(load_and_process_image)
+            .cache()
+            .shuffle(buffer_size=image_count)
+            .batch(batch_size)
+            .prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+    )
 
     input_layer = tf.keras.layers.Input((80, 240, 3))
     x = input_layer
@@ -48,4 +73,4 @@ async def train_model():
 
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-    model.fit(x_train, y_train, epochs=50)
+    model.fit(ds, epochs=50)
