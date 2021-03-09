@@ -6,7 +6,7 @@ import tensorflow as tf
 from fastapi import FastAPI, File
 
 from app.baidu import recognize_with_baidu
-from app.common import locate, index_to_char, create_mask
+from app.common import locate, index_to_char, create_mask, index_to_chinese
 from train_plate_model import train_model_by_system_call
 
 app = FastAPI()
@@ -33,7 +33,13 @@ async def recognize(file: bytes = File(...)):
 
     ocr_begin = time.time()
     plate_chars = recognition_model.predict(np.array([plate_image]))
-    plate = [index_to_char[np.argmax(cs)] for cs in plate_chars]
+    plate = []
+    for idx, cs in enumerate(plate_chars):
+        char_index = np.argmax(cs)
+        if idx == 0:
+            plate.append(index_to_chinese[char_index])
+        else:
+            plate.append(index_to_char[char_index])
     print('ocr耗时{}'.format(time.time() - ocr_begin))
 
     predict_plate = ''.join(plate)
