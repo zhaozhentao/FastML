@@ -20,17 +20,21 @@ async def recognize(file: bytes = File(...)):
     img = tf.image.decode_jpeg(file, channels=3)
     img = tf.image.resize(img, [416, 416])
     img = img / 255.0
-
     result = detect_model.predict(np.array([img]))
+    print('车牌mask耗时{}'.format(time.time() - begin))
 
+    locate_begin = time.time()
     mask = create_mask(result)
     mask = tf.keras.preprocessing.image.array_to_img(mask)
     mask = np.asarray(mask)
     img = np.asarray(img)
-
     plate_image = locate(img, mask)
+    print('车牌旋转耗时{}'.format(time.time() - locate_begin))
+
+    ocr_begin = time.time()
     plate_chars = recognition_model.predict(np.array([plate_image]))
     plate = [index_to_char[np.argmax(cs)] for cs in plate_chars]
+    print('ocr耗时{}'.format(time.time() - ocr_begin))
 
     predict_plate = ''.join(plate)
     asyncio.create_task(recognize_with_baidu(predict_plate, file, mask))
