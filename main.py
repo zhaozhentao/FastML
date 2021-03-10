@@ -6,7 +6,7 @@ import tensorflow as tf
 from fastapi import FastAPI, File
 
 from app.baidu import recognize_with_baidu
-from app.common import locate, index_to_char, create_mask, index_to_chinese
+from app.common import locate, index_to_char, create_mask, index_to_chinese, index_to_letter
 from train_plate_model import train_model_by_system_call
 
 app = FastAPI()
@@ -38,6 +38,8 @@ async def recognize(file: bytes = File(...)):
         char_index = np.argmax(cs)
         if idx == 0:
             plate.append(index_to_chinese[char_index])
+        elif idx == 1:
+            plate.append(index_to_letter[char_index])
         else:
             plate.append(index_to_char[char_index])
     print('ocr耗时{}'.format(time.time() - ocr_begin))
